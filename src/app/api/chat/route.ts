@@ -36,7 +36,12 @@ export async function POST(request: Request) {
   }
 
   // RAG: 質問をベクトル化して類似チャンクを検索する
-  const queryEmbedding = await embedText(lastMessage.content);
+  let queryEmbedding: Float32Array;
+  try {
+    queryEmbedding = await embedText(lastMessage.content);
+  } catch {
+    return Response.json({ error: 'ベクトル化に失敗しました。しばらくしてから再試行してください。' }, { status: 502 });
+  }
   const allChunks = queries.getAllChunks.all() as Array<{
     id: string;
     document_id: string;
