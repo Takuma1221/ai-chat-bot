@@ -1,5 +1,3 @@
-import { anthropic } from '@ai-sdk/anthropic';
+import { openai } from '@ai-sdk/openai';
 
-// チャット応答に使うClaudeモデル。
-// Task 9のチャットAPIで streamText() に渡す。
-export const chatModel = anthropic('claude-3-5-sonnet-20241022');
+export const chatModel = openai('gpt-4o-mini');
