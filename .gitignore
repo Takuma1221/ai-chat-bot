@@ -1,0 +1,18 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# env
+.env
+.env.local
+.env*.local
+
+# db
+*.db
+*.sqlite
+
+# superpowers visual companion
+.superpowers/
