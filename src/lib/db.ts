@@ -22,6 +22,8 @@ db.exec(`
     chunk_index INTEGER NOT NULL
   );
 
+  CREATE INDEX IF NOT EXISTS idx_chunks_document_id ON chunks(document_id);
+
   CREATE TABLE IF NOT EXISTS messages (
     id         TEXT PRIMARY KEY,
     session_id TEXT,
@@ -85,7 +87,7 @@ export const queries = {
   ),
 
   getRecentMessages: db.prepare<[number], Message>(
-    'SELECT id, session_id, role, content, created_at FROM messages ORDER BY created_at DESC LIMIT ?'
+    'SELECT id, session_id, role, content, created_at FROM messages ORDER BY created_at ASC LIMIT ?'
   ),
 };
 
