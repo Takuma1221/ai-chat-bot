@@ -14,7 +14,7 @@ type Props = {
   onUpload: () => void;
 };
 
-export default function Sidebar({ documents, onUpload }: Props) {
+export default function Sidebar({ documents = [], onUpload }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
