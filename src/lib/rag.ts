@@ -1,3 +1,6 @@
+import { embed } from 'ai';
+import { openai } from '@ai-sdk/openai';
+
 // テキストを maxLength 文字以内のチャンク（かたまり）に分割する。
 // 短い段落は結合して1チャンクにまとめ、長すぎる段落は強制的に切り分ける。
 export function splitIntoChunks(text: string, maxLength = 500): string[] {
@@ -107,4 +110,14 @@ export function cosineSimilarity(a: Float32Array, b: Float32Array): number {
   const denom = Math.sqrt(normA) * Math.sqrt(normB);
   if (denom === 0) return 0;
   return dot / denom;
+}
+
+// テキストを OpenAI の text-embedding-3-small でベクトル化する。
+// 戻り値は Float32Array（1536次元）。
+export async function embedText(text: string): Promise<Float32Array> {
+  const { embedding } = await embed({
+    model: openai.embedding('text-embedding-3-small'),
+    value: text,
+  });
+  return new Float32Array(embedding);
 }
