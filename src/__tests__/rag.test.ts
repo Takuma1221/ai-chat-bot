@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { splitIntoChunks } from '@/lib/rag';
+import { splitIntoChunks, cosineSimilarity } from '@/lib/rag';
 
 describe('splitIntoChunks', () => {
   it('空文字列は空配列を返す', () => {
@@ -50,5 +50,30 @@ describe('splitIntoChunks', () => {
     const text = '段落1\n\n\n\n段落2';
     const chunks = splitIntoChunks(text);
     expect(chunks.length).toBe(1);
+  });
+});
+
+describe('cosineSimilarity', () => {
+  it('同一ベクトルは1.0を返す', () => {
+    const v = new Float32Array([1, 0, 0]);
+    expect(cosineSimilarity(v, v)).toBeCloseTo(1.0);
+  });
+
+  it('直交するベクトルは0を返す', () => {
+    const a = new Float32Array([1, 0, 0]);
+    const b = new Float32Array([0, 1, 0]);
+    expect(cosineSimilarity(a, b)).toBeCloseTo(0);
+  });
+
+  it('反対方向のベクトルは-1.0を返す', () => {
+    const a = new Float32Array([1, 0, 0]);
+    const b = new Float32Array([-1, 0, 0]);
+    expect(cosineSimilarity(a, b)).toBeCloseTo(-1.0);
+  });
+
+  it('類似するベクトルは高いスコアを返す', () => {
+    const a = new Float32Array([0.9, 0.1, 0.0]);
+    const b = new Float32Array([0.8, 0.2, 0.0]);
+    expect(cosineSimilarity(a, b)).toBeGreaterThan(0.95);
   });
 });
