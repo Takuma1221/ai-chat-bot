@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { splitIntoChunks, cosineSimilarity } from '@/lib/rag';
+import { splitIntoChunks, cosineSimilarity, searchChunks } from '@/lib/rag';
 
 describe('splitIntoChunks', () => {
   it('空文字列は空配列を返す', () => {
@@ -75,5 +75,41 @@ describe('cosineSimilarity', () => {
     const a = new Float32Array([0.9, 0.1, 0.0]);
     const b = new Float32Array([0.8, 0.2, 0.0]);
     expect(cosineSimilarity(a, b)).toBeGreaterThan(0.95);
+  });
+});
+
+describe('searchChunks', () => {
+  const makeChunk = (id: string, embedding: number[], content = 'content') => ({
+    id,
+    document_id: 'doc1',
+    content,
+    embedding: Buffer.from(new Float32Array(embedding).buffer),
+    chunk_index: 0,
+  });
+
+  it('最も類似したチャンクをスコア順で返す', () => {
+    const chunks = [
+      makeChunk('a', [1, 0, 0], 'チャンクA'),
+      makeChunk('b', [0, 1, 0], 'チャンクB'),
+      makeChunk('c', [0.9, 0.1, 0], 'チャンクC'),
+    ];
+    const query = new Float32Array([1, 0, 0]);
+    const results = searchChunks(query, chunks, 2);
+
+    expect(results).toHaveLength(2);
+    expect(results[0].id).toBe('a');
+    expect(results[1].id).toBe('c');
+    expect(results[0].score).toBeGreaterThan(results[1].score);
+  });
+
+  it('チャンクが0件のとき空配列を返す', () => {
+    const query = new Float32Array([1, 0, 0]);
+    expect(searchChunks(query, [], 3)).toEqual([]);
+  });
+
+  it('topK がチャンク数より大きくても全件返す', () => {
+    const chunks = [makeChunk('a', [1, 0, 0])];
+    const query = new Float32Array([1, 0, 0]);
+    expect(searchChunks(query, chunks, 10)).toHaveLength(1);
   });
 });

@@ -54,6 +54,45 @@ export function splitIntoChunks(text: string, maxLength = 500): string[] {
   return chunks;
 }
 
+type RawChunk = {
+  id: string;
+  document_id: string;
+  content: string;
+  embedding: Buffer;
+  chunk_index: number;
+};
+
+export type SearchResult = {
+  id: string;
+  document_id: string;
+  content: string;
+  score: number;
+};
+
+export function searchChunks(
+  queryEmbedding: Float32Array,
+  chunks: RawChunk[],
+  topK = 3
+): SearchResult[] {
+  return chunks
+    .map((chunk) => {
+      // Buffer（バイナリ）を Float32Array に変換してコサイン類似度を計算する
+      const emb = new Float32Array(
+        chunk.embedding.buffer,
+        chunk.embedding.byteOffset,
+        chunk.embedding.byteLength / Float32Array.BYTES_PER_ELEMENT
+      );
+      return {
+        id: chunk.id,
+        document_id: chunk.document_id,
+        content: chunk.content,
+        score: cosineSimilarity(queryEmbedding, emb),
+      };
+    })
+    .sort((a, b) => b.score - a.score) // スコアの高い順に並べる
+    .slice(0, topK);                   // 上位 topK 件だけ返す
+}
+
 export function cosineSimilarity(a: Float32Array, b: Float32Array): number {
   let dot = 0;
   let normA = 0;
