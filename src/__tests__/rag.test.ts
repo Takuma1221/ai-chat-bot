@@ -14,10 +14,9 @@ describe('splitIntoChunks', () => {
   it('段落区切りでチャンクを分割する', () => {
     const text = '段落1の内容です。\n\n段落2の内容です。\n\n段落3の内容です。';
     const chunks = splitIntoChunks(text);
-    expect(chunks.length).toBe(3);
-    expect(chunks[0]).toBe('段落1の内容です。');
-    expect(chunks[1]).toBe('段落2の内容です。');
-    expect(chunks[2]).toBe('段落3の内容です。');
+    // 各段落が短いため maxLength=500 内で1つのチャンクに結合される
+    expect(chunks.length).toBe(1);
+    expect(chunks[0]).toBe('段落1の内容です。\n\n段落2の内容です。\n\n段落3の内容です。');
   });
 
   it('maxLength超えの段落は次のチャンクに分離する', () => {
@@ -30,9 +29,26 @@ describe('splitIntoChunks', () => {
     expect(chunks[1]).toBe(shortParagraph);
   });
 
+  it('maxLengthを超える単一段落は文字レベルで分割する', () => {
+    const longText = 'あ'.repeat(1200);
+    const chunks = splitIntoChunks(longText, 500);
+    expect(chunks.length).toBe(3); // 500 + 500 + 200
+    expect(chunks[0]).toBe('あ'.repeat(500));
+    expect(chunks[1]).toBe('あ'.repeat(500));
+    expect(chunks[2]).toBe('あ'.repeat(200));
+  });
+
+  it('短い段落はmaxLength内で結合する', () => {
+    const text = '短い段落1\n\n短い段落2\n\n短い段落3';
+    // デフォルト maxLength=500 なので全て1チャンクに結合される
+    const chunks = splitIntoChunks(text);
+    expect(chunks.length).toBe(1);
+    expect(chunks[0]).toBe('短い段落1\n\n短い段落2\n\n短い段落3');
+  });
+
   it('空の段落は無視する', () => {
     const text = '段落1\n\n\n\n段落2';
     const chunks = splitIntoChunks(text);
-    expect(chunks.length).toBe(2);
+    expect(chunks.length).toBe(1);
   });
 });
