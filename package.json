@@ -13,6 +13,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.81",
     "@ai-sdk/openai": "^3.0.68",
+    "@ai-sdk/react": "^3.0.199",
     "ai": "^6.0.197",
     "better-sqlite3": "^12.10.0",
     "next": "16.2.7",
